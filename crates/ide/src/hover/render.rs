@@ -2,9 +2,7 @@
 use std::fmt::Display;
 
 use either::Either;
-use hir::{
-    db::HirDatabase, AsAssocItem, AttributeTemplate, HasAttrs, HirDisplay, Semantics, TypeInfo,
-};
+use hir::{AsAssocItem, AttributeTemplate, HasAttrs, HirDisplay, Semantics, TypeInfo};
 use ide_db::{
     base_db::SourceDatabase,
     defs::Definition,
@@ -348,11 +346,10 @@ pub(super) fn definition(
         Definition::Function(it) => label_and_docs(db, it),
         Definition::Adt(it) => label_and_docs(db, it),
         Definition::Variant(it) => label_value_and_docs(db, it, |&it| {
-            let hir_db: &dyn HirDatabase = db;
-            let body = hir_db.const_eval_variant(it.into());
+            let body = it.eval(db);
             match body {
                 Ok(x) => Some(format!("{}", x)),
-                Err(_) => it.value(db).map(|s| format!("{}", s)),
+                Err(_) => it.value(db).map(|x| format!("{}", x)),
             }
         }),
         Definition::Const(it) => label_value_and_docs(db, it, |it| {
