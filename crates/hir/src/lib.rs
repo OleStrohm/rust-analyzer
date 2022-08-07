@@ -930,6 +930,10 @@ impl Enum {
     pub fn ty(self, db: &dyn HirDatabase) -> Type {
         Type::from_def(db, self.id)
     }
+
+    pub fn is_data_carrying(self, db: &dyn HirDatabase) -> bool {
+        self.variants(db).iter().all(|v| matches!(v.kind(db), StructKind::Unit))
+    }
 }
 
 impl HasVisibility for Enum {
@@ -974,7 +978,6 @@ impl Variant {
     }
 
     pub fn value(self, db: &dyn HirDatabase) -> Option<Expr> {
-        // TODO(ole): Handle missing exprs (+1 to the prev)
         self.source(db)?.value.expr()
     }
 
